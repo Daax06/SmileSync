@@ -37,9 +37,6 @@ $result = $conn->query($sql);
                 <th>Firstname</th>
                 <th>Middlename</th>
                 <th>Gender</th>
-                <th>Course</th>
-                <th>Year</th>
-                <th>Section</th>
             </tr>
             <?php
             if ($result->num_rows > 0) {

@@ -46,7 +46,6 @@ $conn->close();
     <meta name="viewport" content="width=device-width, user-scalable=yes">
     <title>Register Page</title>
     <style>
-        /* CSS styles */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -80,8 +79,8 @@ $conn->close();
             margin: 0;
             font-size: 24px;
             text-shadow: 2px 2px 4px #000;
-            position: relative; /* Set position to relative, absolute, or fixed */
-            left: -10px; /* Adjust the left position to push the text to the left */
+            position: relative; 
+            left: -10px; 
         }
 
         #nav ul {

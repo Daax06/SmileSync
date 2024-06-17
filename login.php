@@ -43,15 +43,16 @@ $conn->close();
     
 </head>
 <body>
-    <h1 id="header">Login</h1>
-    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br><br>
-        
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
-        
-        <input type="submit" value="Login">
-    </form>
+            <div class="form-container sign-in">
+                <form>
+                    <h1>Login</h1>
+                    <span> or use your email & password</span>
+                    <input type="text" placeholder="username"/>
+                    <input type="text" placeholder="youremail@domain.com"/>
+                    <input type="text" placeholder="password"/>
+                    <a href="#"> Forgot Your Password? </a> 
+                    <button>Sign In</button>
+                </form>
+            </div>
 </body>
 </html>
