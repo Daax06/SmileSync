@@ -17,11 +17,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo "Invalid email format";
     } else {
-        $login_query = "SELECT * FROM PatientAccount WHERE Email = '$email' AND Password = '$password'";
-        $result = $conn->query($login_query);
+        $login_query = "SELECT * FROM PatientAccount WHERE Email = ? AND Password = ?";
+        $stmt = $conn->prepare($login_query);
+        $stmt->bind_param("ss", $email, $password);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            echo "Login successful";
             header('Location: patient_form.php');
             exit;
         } else {
@@ -38,123 +40,96 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=yes">
-    <style> 
-    @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto Condensed', sans-serif;
-}
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f2f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 500px;
-    margin: 0;
-}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('dentist_background.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+        }
 
-header {
-    color: #333;
-    
-}
+        .container {
+            background-color: transparent;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 768px;
+            min-height: 500px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
 
-.container{
-    background-color: white ;
-    border-radius: 30px;
-    box-shadow: 0 5px 10px rgba(0,0,0.35);
-    position: relative;
-    overflow: hidden;
-    width: 768px;
-    max-width: 100%;
-    min-height: 500px;
-}
+        .form-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            padding: 40px;
+            box-sizing: border-box;
+        }
 
-.container p{
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.3px;
-    margin: 20px 0;
-}
+        .form-container h1 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
 
-.container span{
-    font-size: 12px;
-}
+        .form-container form {
+            display: flex;
+            flex-direction: column;
+        }
 
-.container a{
-    color: #333;
-    font-size: 13px;
-    text-decoration: none;
-    margin: 15px;
-}
+        .form-container input {
+            margin: 10px 0;
+            padding: 12px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
 
-.container button{
-    background-color: #abc1d4;
-    color: black;
-    font-size: 12px;
-    padding: 10px 45px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-top: 10px;
-    cursor: pointer;
-}
-
-.container button.hidden{
-    background-color: transparent !important;
-    border-color: #fff;
-}
-
-.container form{
-    background-color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 0 40px;
-    height: 100%;
-}
-
-.container input{
-    background-color: #eee;
-    border: none;
-    margin: 8px 0;
-    padding: 10px 15px;
-    font-size: 13px;
-    border-radius: 8px;
-    width: 100%;
-    outline: none;
-}
-
-.form-container{
-    position: absolute;
-    top: 0;
-    height: 600px;
-    transition: all 0.6s ease-in-out;
-}
-
-.sign-in{
-    left: 0;
-    width: 50%;
-    z-index: 2;
-}
+        .form-container button {
+            margin-top: 20px;
+            padding: 12px;
+            font-size: 14px;
+            background-color: #abc1d4;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            outline: none;
+        }
     </style>
     <title>Login Page</title>
 </head>
 <body>
-            <div class="form-container sign-in">
-                <form>
-                    <h1>Login</h1>
-                    <span> or use your email & password</span>
-                    <input type="text" placeholder="username"/>
-                    <input type="text" placeholder="youremail@domain.com"/>
-                    <input type="text" placeholder="password"/>
-                    <button>Sign In</button>
-                </form>
-            </div>
+    <div class="container">
+        <div class="form-container">
+            <form method="post">
+                <h1>Login</h1>
+                <input type="email" name="email" placeholder="youremail@domain.com" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit">Sign In</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
