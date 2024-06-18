@@ -1,33 +1,27 @@
 <?php
-// Database connection detailshehe
 $servername = "localhost";
-$username = "Email";
-$password = "YourPassword";
+$username = "root";
+$password = "";
 $database = "Patient_Database";
 
-// Create connection
 $conn = new mysqli($servername, $username, $password, $database);
 
-// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Generate unique patient ID
 $query = "SELECT MAX(PatientID) AS max_id FROM Patient";
 $result = $conn->query($query);
 $row = $result->fetch_assoc();
 $max_id = $row['max_id'];
 $new_patient_id = $max_id ? $max_id + 1 : 1;
 
-// Process form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $age = $_POST['age'];
     $gender = $_POST['gender'];
     $address = $_POST['address'];
 
-    // Insert patient data into the database
     $insert_query = "INSERT INTO Patient (PatientID, PatientName, Age, Gender, Address)
                      VALUES ('$new_patient_id', '$name', '$age', '$gender', '$address')";
 
