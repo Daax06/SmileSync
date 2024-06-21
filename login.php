@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "Invalid email format";
+        echo "<p style='color: red;'>Invalid email format</p>";
     } else {
         $login_query = "SELECT * FROM PatientAccount WHERE Email = ? AND Password = ?";
         $stmt = $conn->prepare($login_query);
@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header('Location: patient_form.php');
             exit;
         } else {
-            echo "Invalid email or password";
+            echo "<p style='color: red;'>Invalid email or password</p>";
         }
     }
 }
@@ -189,9 +189,9 @@ $conn->close();
         <div class="form-container">
             <form method="post">
                 <h1>Login</h1>
-                <input type="email" name="email" placeholder="youremail@domain.com" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <button type="submit">Sign In</button>
+                <input class="email" type="email" name="email" placeholder="youremail@domain.com" required>
+                <input class="password" type="password" name="password" placeholder="Password" required>
+                <button class="submit" type="submit">Sign In</button>
             </form>
         </div>
     </div>
