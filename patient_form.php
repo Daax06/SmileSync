@@ -1,3 +1,7 @@
+<?php
+include 'db_connect.php';
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -24,7 +28,7 @@
             background-position: center;
         }
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             background: #fff;
             padding: 20px;
             border-radius: 8px;
@@ -112,6 +116,42 @@
             text-decoration: underline;
         }
     </style>
+    <script>
+        function fetchPatients() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'fetch_patients.php', true);
+            xhr.onload = function() {
+                if (this.status == 200) {
+                    document.getElementById('patient-list').innerHTML = this.responseText;
+                }
+            };
+            xhr.send();
+        }
+
+        function addPatient(event) {
+            event.preventDefault();
+
+            var patientName = document.getElementById('patient_name').value;
+            var age = document.getElementById('age').value;
+            var gender = document.getElementById('gender').value;
+            var address = document.getElementById('address').value;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'patient_form.php', true);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                if (this.status == 200) {
+                    fetchPatients();
+                    document.getElementById('patientForm').reset();
+                }
+            };
+            xhr.send('patient_name=' + patientName + '&age=' + age + '&gender=' + gender + '&address=' + address);
+        }
+
+        window.onload = function() {
+            fetchPatients();
+        }
+    </script>
 </head>
 <body>
     <header id="header">
@@ -121,50 +161,18 @@
                 <li><a href="index.html">Home</a></li>
                 <li><a href="register.php">Register</a></li>
                 <li><a href="login.php">Login</a></li>
-                <li><a href="patient_form.php">Patient Page</a></li>
+                <li><a href="patientpage.php">Patient Page</a></li>
             </ul>
         </nav>
     </header>
     <div class="container">
         <h1>Patient List</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Patient ID</th>
-                    <th>Name</th>
-                    <th>Age</th>
-                    <th>Gender</th>
-                    <th>Address</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                include 'db_connect.php';
-
-                $query = "SELECT * FROM Patient";
-                $result = $conn->query($query);
-
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<tr>";
-                        echo "<td>" . $row['PatientID'] . "</td>";
-                        echo "<td>" . $row['PatientName'] . "</td>";
-                        echo "<td>" . $row['Age'] . "</td>";
-                        echo "<td>" . $row['Gender'] . "</td>";
-                        echo "<td>" . $row['Address'] . "</td>";
-                        echo "</tr>";
-                    }
-                } else {
-                    echo "<tr><td colspan='5'>No patients found</td></tr>";
-                }
-
-                $conn->close();
-                ?>
-            </tbody>
-        </table>
+        <div id="patient-list">
+            <!-- Patient list will be loaded here by JavaScript -->
+        </div>
 
         <h2>Add New Patient</h2>
-        <form method="post" action="patient_form.php">
+        <form id="patientForm" onsubmit="addPatient(event)">
             <label for="patient_name">Name:</label>
             <input type="text" id="patient_name" name="patient_name" required><br>
 
@@ -182,39 +190,6 @@
             <textarea id="address" name="address" rows="4" required></textarea><br>
 
             <button type="submit">Submit</button>
-        </form>
-
-        <h2>Update/Delete Patient</h2>
-        <form method="post" action="update_delete.php">
-            <label for="patient_id">Patient ID:</label>
-            <input type="number" id="patient_id" name="patient_id" required><br>
-
-            <label for="patient_name">Name:</label>
-            <input type="text" id="patient_name" name="patient_name"><br>
-
-            <label for="age">Age:</label>
-            <input type="number" id="age" name="age"><br>
-
-            <label for="gender">Gender:</label>
-            <select id="gender" name="gender">
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-            </select><br>
-
-            <label for="address">Address:</label>
-            <textarea id="address" name="address" rows="4"></textarea><br>
-
-            <button type="submit" name="update">Update</button>
-            <button type="submit" name="delete">Delete</button>
-        </form>
-
-        <h2>Search Patient</h2>
-        <form method="post" action="search.php">
-            <label for="search_name">Name:</label>
-            <input type="text" id="search_name" name="search_name" required><br>
-            <button type="submit">Search</button>
         </form>
     </div>
 </body>

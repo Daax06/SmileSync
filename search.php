@@ -17,7 +17,7 @@
             background-position: center;
         }
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             background: #fff;
             padding: 20px;
             border-radius: 8px;

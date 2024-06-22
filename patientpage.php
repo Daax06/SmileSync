@@ -7,14 +7,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $gender = $_POST['gender'];
     $address = $_POST['address'];
 
-    $query = "INSERT INTO Patient (PatientName, Age, Gender, Address) VALUES ('$patient_name', $age, '$gender', '$address')";
-
-    if ($conn->query($query) === TRUE) {
-        echo "New record created successfully";
-    } else {
-        echo "Error: " . $query . "<br>" . $conn->error;
+    if (empty($patient_name) || empty($age) || empty($gender) || empty($address)) {
+        echo "All fields are required.";
+        exit;
     }
 
+    $stmt = $conn->prepare("INSERT INTO Patient (PatientName, Age, Gender, Address) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("siss", $patient_name, $age, $gender, $address);
+
+    if ($stmt->execute()) {
+        echo "New patient added successfully";
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+
+    $stmt->close();
     $conn->close();
 }
 ?>
