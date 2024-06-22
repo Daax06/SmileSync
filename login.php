@@ -10,36 +10,61 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+$email = $password = "";
+$email_err = $password_err = "";
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "<p style='color: red;'>Invalid email format</p>";
+    if (empty(trim($_POST["email"]))) {
+        $email_err = "Please enter your email.";
     } else {
-        $login_query = "SELECT * FROM PatientAccount WHERE Email = ? AND Password = ?";
-        $stmt = $conn->prepare($login_query);
-        $stmt->bind_param("ss", $email, $password);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $email = trim($_POST["email"]);
+    }
 
-        if ($result->num_rows > 0) {
-            header('Location: patient_form.php');
-            exit;
-        } else {
-            echo "<p style='color: red;'>Invalid email or password</p>";
+    if (empty(trim($_POST["password"]))) {
+        $password_err = "Please enter your password.";
+    } else {
+        $password = trim($_POST["password"]);
+    }
+
+    if (empty($email_err) && empty($password_err)) {
+        $sql = "SELECT AccountID, Name, Password FROM PatientAccount WHERE Email = ?";
+        
+        if ($stmt = mysqli_prepare($conn, $sql)) {
+            mysqli_stmt_bind_param($stmt, "s", $email);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_store_result($stmt);
+
+            if (mysqli_stmt_num_rows($stmt) == 1) {
+                mysqli_stmt_bind_result($stmt, $user_id, $name, $hashed_password);
+                if (mysqli_stmt_fetch($stmt)) {
+                    if (password_verify($password, $hashed_password)) {
+                        session_start();
+                        $_SESSION["user_id"] = $user_id;
+                        $_SESSION["name"] = $name;
+                        header("location: patient_form.php");
+                    } else {
+                        $password_err = "Invalid password.";
+                    }
+                }
+            } else {
+                $email_err = "No account found with that email.";
+            }
+
+            mysqli_stmt_close($stmt);
         }
     }
 }
 
-$conn->close();
+mysqli_close($conn);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
         *{
@@ -172,7 +197,6 @@ $conn->close();
             outline: none;
         }
     </style>
-    <title>Login Page</title>
 </head>
 <body>
     <header id="header">
@@ -182,16 +206,26 @@ $conn->close();
                 <li><a href="index.html">Home</a></li>
                 <li><a href="register.php">Register</a></li>
                 <li><a href="login.php">Login</a></li>
+                <li><a href="patient_form.php">Patient Page</a></li>
             </ul>
         </nav>
     </header>
     <div class="container">
         <div class="form-container">
-            <form method="post">
+            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                 <h1>Login</h1>
-                <input class="email" type="email" name="email" placeholder="youremail@domain.com" required>
-                <input class="password" type="password" name="password" placeholder="Password" required>
-                <button class="submit" type="submit">Sign In</button>
+                <div <?php echo (!empty($email_err)) ? 'has-error' : ''; ?>">
+                    <input class="email" type="email" name="email" placeholder="youremail@domain.com" value="<?php echo $email; ?>" required>
+                    <span class="help-block"><?php echo $email_err; ?></span>
+                </div>
+                <div <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">
+                    <input class="password" type="password" name="password" placeholder="Password" required>
+                    <span class="help-block"><?php echo $password_err; ?></span>
+                </div>
+                <div class="form-group">
+                    <button class="submit" type="submit">Sign In</button>
+                </div>
+                <p>Don't have an account? <a href="register.php">Register here</a>.</p>
             </form>
         </div>
     </div>
