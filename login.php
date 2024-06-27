@@ -203,7 +203,7 @@ mysqli_close($conn);
         <h1>SmileSync</h1>
         <nav id="nav">
             <ul>
-                <li><a href="index.php">Home</a></li>
+                <li><a href="index.html">Home</a></li>
                 <li><a href="register.php">Register</a></li>
                 <li><a href="login.php">Login</a></li>
                 <li><a href="patient_form.php">Patient Page</a></li>
