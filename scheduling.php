@@ -191,7 +191,7 @@
 
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $selected_date = $_POST['date'];
+        $selected_date = $_POST['selected_date'];
         $selected_time = $_POST['selected_time'];
 
         // Database connection details
