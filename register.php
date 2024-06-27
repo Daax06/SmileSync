@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (isset($_SESSION["name"])) {
+    header("Location: index.php");
+    exit();
+}
+
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -71,7 +78,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $conn->close();
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,7 +85,7 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Page</title>
     <style>
-     @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
         *{
             margin: 0;
             padding: 0;
@@ -216,11 +222,14 @@ $conn->close();
         <h1>SmileSync</h1>
         <nav id="nav">
             <ul>
-                <li><a href="index.html">Home</a></li>
+                <li><a href="index.php">Home</a></li>
                 <li><a href="register.php">Register</a></li>
                 <li><a href="login.php">Login</a></li>
                 <li><a href="patient_form.php">Patient Page</a></li>
-                <li><a href="scheduling.php">scheduling</a></li>
+                <li><a href="scheduling.php">Scheduling</a></li>
+                <?php if (isset($_SESSION["name"])): ?>
+                    <li><a href="logout.php">Logout (<?php echo htmlspecialchars($_SESSION["name"]); ?>)</a></li>
+                <?php endif; ?>
             </ul>
         </nav>
     </header>

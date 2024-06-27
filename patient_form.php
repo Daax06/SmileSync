@@ -162,7 +162,7 @@ include 'db_connect.php';
                 <li><a href="register.php">Register</a></li>
                 <li><a href="login.php">Login</a></li>
                 <li><a href="patient_form.php">Patient Page</a></li>
-                <li><a href="scheduling.php">scheduling</a></li>
+                <li><a href="scheduling.php">Scheduling</a></li>
             </ul>
         </nav>
     </header>

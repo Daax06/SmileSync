@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -38,7 +40,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 mysqli_stmt_bind_result($stmt, $user_id, $name, $hashed_password);
                 if (mysqli_stmt_fetch($stmt)) {
                     if (password_verify($password, $hashed_password)) {
-                        session_start();
                         $_SESSION["user_id"] = $user_id;
                         $_SESSION["name"] = $name;
                         header("location: patient_form.php");
@@ -57,7 +58,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 mysqli_close($conn);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -199,14 +199,18 @@ mysqli_close($conn);
     </style>
 </head>
 <body>
-    <header id="header">
+<header id="header">
         <h1>SmileSync</h1>
         <nav id="nav">
             <ul>
-                <li><a href="index.html">Home</a></li>
+                <li><a href="index.php">Home</a></li>
                 <li><a href="register.php">Register</a></li>
                 <li><a href="login.php">Login</a></li>
                 <li><a href="patient_form.php">Patient Page</a></li>
+                <li><a href="scheduling.php">Scheduling</a></li>
+                <?php if (isset($_SESSION["name"])): ?>
+                    <li><a href="logout.php">Logout (<?php echo htmlspecialchars($_SESSION["name"]); ?>)</a></li>
+                <?php endif; ?>
             </ul>
         </nav>
     </header>
