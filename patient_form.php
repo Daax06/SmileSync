@@ -163,6 +163,9 @@ include 'db_connect.php';
                 <li><a href="login.php">Login</a></li>
                 <li><a href="patient_form.php">Patient Page</a></li>
                 <li><a href="scheduling.php">Scheduling</a></li>
+                <?php if (isset($_SESSION["name"])): ?>
+                    <li><a href="logout.php">Logout (<?php echo htmlspecialchars($_SESSION["name"]); ?>)</a></li>
+                <?php endif; ?>
             </ul>
         </nav>
     </header>
