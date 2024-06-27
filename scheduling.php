@@ -47,9 +47,63 @@
         input[type="submit"]:hover {
             background-color: #45a049;
         }
+        #header {
+            background-color: #59B0CC;
+            color: #fff;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1;
+            position: fixed;
+            width: 100%;
+            top: 0;
+        }
+
+        #header h1 {
+            margin: 0;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px #000;
+            position: relative; 
+            left: -10px; 
+        }
+
+        #nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            margin-right: 200px;
+        }
+
+        #nav ul li {
+            display: inline;
+            margin-left: 20px;
+        }
+
+        #nav ul li a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        #nav ul li a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+    <header id="header">
+        <h1>SmileSync</h1>
+        <nav id="nav">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="register.php">Register</a></li>
+                <li><a href="login.php">Login</a></li>
+                <li><a href="patient_form.php">Patient Page</a></li>
+            </ul>
+        </nav>
+    </header>
     <div class="appointment-container">
         <h1>Dental Appointment Booking</h1>
         <form id="appointment-form" action="scheduling.php" method="POST">
