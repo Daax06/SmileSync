@@ -5,16 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmileSync - Dental Appointment Booking</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto Condensed', sans-serif;
+        }
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
         }
-
         .appointment-container {
             background-color: #fff;
             padding: 20px;
