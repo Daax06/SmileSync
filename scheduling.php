@@ -1,36 +1,3 @@
-<?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $selected_date = $_POST['selected_date'];
-    $selected_time = $_POST['selected_time'];
-
-    // Database connection details
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "patient_database";
-
-    // Create connection
-    $conn = new mysqli($servername, $username, $password, $dbname);
-
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    // Prepare SQL statement to insert data into appointments table
-    $sql = "INSERT INTO appointments (date, time) VALUES ('$selected_date', '$selected_time')";
-
-    if ($conn->query($sql) === TRUE) {
-        echo "<p>Appointment booked successfully for $selected_date at $selected_time</p>";
-    } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
-    }
-
-    // Close connection
-    $conn->close();
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,13 +5,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmileSync - Dental Appointment Booking</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
-        *{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Roboto Condensed', sans-serif;
-        }
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f2f5;
@@ -66,23 +26,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
             width: 80%;
             max-width: 600px;
+            margin-top: 20px; /* Adjust as needed */
         }
-
-        h1 {
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-
         .calendar {
             margin-bottom: 20px;
         }
-
         .time-slots {
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
         }
-
         .time-slot {
             width: calc(25% - 10px);
             margin-bottom: 10px;
@@ -93,16 +46,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             background-color: #4CAF50;
             color: white;
         }
-
         .time-slot.disabled {
             background-color: #ccc;
             cursor: not-allowed;
         }
-
         .time-slot.selected {
             background-color: #45a049;
         }
-
         #header {
             background-color: #59B0CC;
             color: #fff;
@@ -115,7 +65,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             width: 100%;
             top: 0;
         }
-
         #header h1 {
             margin: 0;
             font-size: 24px;
@@ -123,36 +72,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             position: relative; 
             left: -10px; 
         }
-
         #nav ul {
             list-style-type: none;
             margin: 0;
             padding: 0;
             margin-right: 200px;
         }
-
         #nav ul li {
             display: inline;
             margin-left: 20px;
         }
-
         #nav ul li a {
             text-decoration: none;
             color: #fff;
             font-size: 18px;
             text-shadow: 2px 2px 4px #000;
         }
-
         #nav ul li a:hover {
             text-decoration: underline;
         }
-
         .thin-header {
             height: 50px;
             padding: 10px 0;
             transition: height 0.3s ease;
         }
-
         .thin-header h1 {
             font-size: 24px;
         }
@@ -210,9 +153,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Example of available timeslots
             $available_times = [
                 "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
-                "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "10:00 AM", "1:00 PM", "3:00 PM"
+                "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"
             ];
-
 
             // Generate time slots buttons
             foreach ($timeslots as $time) {
