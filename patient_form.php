@@ -154,7 +154,7 @@ include 'db_connect.php';
     </script>
 </head>
 <body>
-    <header id="header">
+<header id="header">
         <h1>SmileSync</h1>
         <nav id="nav">
             <ul>
@@ -162,7 +162,8 @@ include 'db_connect.php';
                 <li><a href="register.php">Register</a></li>
                 <li><a href="login.php">Login</a></li>
                 <li><a href="patient_form.php">Patient Page</a></li>
-            </ul>   
+                <li><a href="scheduling.php">scheduling</a></li>
+            </ul>
         </nav>
     </header>
     <div class="container">

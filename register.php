@@ -212,7 +212,7 @@ $conn->close();
     </style>
 </head>
 <body>
-    <header id="header">
+<header id="header">
         <h1>SmileSync</h1>
         <nav id="nav">
             <ul>
@@ -220,6 +220,7 @@ $conn->close();
                 <li><a href="register.php">Register</a></li>
                 <li><a href="login.php">Login</a></li>
                 <li><a href="patient_form.php">Patient Page</a></li>
+                <li><a href="scheduling.php">scheduling</a></li>
             </ul>
         </nav>
     </header>

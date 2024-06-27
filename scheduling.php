@@ -101,6 +101,7 @@
                 <li><a href="register.php">Register</a></li>
                 <li><a href="login.php">Login</a></li>
                 <li><a href="patient_form.php">Patient Page</a></li>
+                <li><a href="scheduling.php">scheduling</a></li>
             </ul>
         </nav>
     </header>
