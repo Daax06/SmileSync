@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dental Appointment Booking</title>
+    <title>SmileSync - Dental Appointment Booking</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,6 +12,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
         }
 
         .appointment-container {
@@ -20,123 +21,109 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
+            width: 80%;
+            max-width: 600px;
         }
 
         h1 {
             margin-bottom: 20px;
+            font-size: 1.5rem;
         }
 
-        form {
-            display: flex;
-            flex-direction: column;
+        .calendar {
+            margin-bottom: 20px;
         }
 
-        label, input {
-            margin-bottom: 10px;
-        }
-
-        input[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-        #header {
-            background-color: #59B0CC;
-            color: #fff;
-            padding: 15px;
+        .time-slots {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            z-index: 1;
-            position: fixed;
-            width: 100%;
-            top: 0;
+            flex-wrap: wrap;
         }
 
-        #header h1 {
-            margin: 0;
-            font-size: 24px;
-            text-shadow: 2px 2px 4px #000;
-            position: relative; 
-            left: -10px; 
+        .time-slot {
+            width: calc(25% - 10px);
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
         }
 
-        #nav ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            margin-right: 200px;
+        .time-slot.disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
 
-        #nav ul li {
-            display: inline;
-            margin-left: 20px;
-        }
-
-        #nav ul li a {
-            text-decoration: none;
-            color: #fff;
-            font-size: 18px;
-            text-shadow: 2px 2px 4px #000;
-        }
-
-        #nav ul li a:hover {
-            text-decoration: underline;
+        .time-slot.selected {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <header id="header">
-        <h1>SmileSync</h1>
-        <nav id="nav">
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="register.php">Register</a></li>
-                <li><a href="login.php">Login</a></li>
-                <li><a href="patient_form.php">Patient Page</a></li>
-                <li><a href="scheduling.php">scheduling</a></li>
-            </ul>
-        </nav>
-    </header>
     <div class="appointment-container">
-        <h1>Dental Appointment Booking</h1>
-        <form id="appointment-form" action="scheduling.php" method="POST">
-            <label for="date">Select a Date & Time:</label>
+        <h1>SmileSync - Dental Appointment Booking</h1>
+        
+        <div class="calendar">
+            <h3>Select a Date:</h3>
             <input type="date" id="date" name="date" required>
-            <input type="time" id="time" name="time" required>
-            <input type="submit" value="Book Appointment">
+        </div>
+        
+        <div class="time-slots">
+            <?php
+            // Example of available timeslots
+            $available_times = [
+                "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
+                "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"
+            ];
+
+            // Assume already booked times
+            $booked_times = [
+                "10:00 AM", "1:00 PM", "3:00 PM"
+            ];
+
+            // Generate time slots buttons
+            foreach ($available_times as $time) {
+                $disabled_class = in_array($time, $booked_times) ? ' disabled' : '';
+                echo '<button class="time-slot' . $disabled_class . '" data-time="' . $time . '">' . $time . '</button>';
+            }
+            ?>
+        </div>
+        
+        <form id="appointment-form" action="scheduling.php" method="POST">
+            <input type="hidden" id="selected-time" name="selected_time">
+            <input type="submit" value="Book Appointment" disabled>
         </form>
     </div>
 
     <script>
-        document.getElementById('appointment-form').addEventListener('submit', function(e) {
-            const date = document.getElementById('date').value;
-            const time = document.getElementById('time').value;
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeSlots = document.querySelectorAll('.time-slot');
 
-            if (!date || !time) {
-                e.preventDefault();
-                alert('Please select both a date and a time.');
-            }
+            timeSlots.forEach(slot => {
+                slot.addEventListener('click', function() {
+                    if (!this.classList.contains('disabled') && !this.classList.contains('selected')) {
+                        timeSlots.forEach(slot => slot.classList.remove('selected'));
+                        this.classList.add('selected');
+                        document.getElementById('selected-time').value = this.getAttribute('data-time');
+                        document.getElementById('appointment-form').querySelector('input[type="submit"]').disabled = false;
+                    }
+                });
+            });
         });
     </script>
 
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $date = $_POST['date'];
-        $time = $_POST['time'];
+        $selected_date = $_POST['date'];
+        $selected_time = $_POST['selected_time'];
 
-        // Database connection (replace with your own database details)
-        $servername = "localhost";
-        $username = "username";
-        $password = "password";
-        $dbname = "dental_appointments";
+        // Database connection details
+        $servername = "localhost"; // Replace with your MySQL host
+        $username = "root"; // Replace with your MySQL username
+        $password = ""; // Replace with your MySQL password
+        $dbname = "dental_appointments"; // Replace with your database name
 
         // Create connection
         $conn = new mysqli($servername, $username, $password, $dbname);
@@ -146,14 +133,16 @@
             die("Connection failed: " . $conn->connect_error);
         }
 
-        $sql = "INSERT INTO appointments (date, time) VALUES ('$date', '$time')";
+        // Prepare SQL statement to insert data into appointments table
+        $sql = "INSERT INTO appointments (date, time) VALUES ('$selected_date', '$selected_time')";
 
         if ($conn->query($sql) === TRUE) {
-            echo "<p>New appointment booked successfully</p>";
+            echo "<p>Appointment booked successfully for $selected_date at $selected_time</p>";
         } else {
             echo "Error: " . $sql . "<br>" . $conn->error;
         }
 
+        // Close connection
         $conn->close();
     }
     ?>
