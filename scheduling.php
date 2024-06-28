@@ -15,14 +15,14 @@ if ($conn->connect_error) {
 
 // Fetch available dates and times
 $available_dates = ["2024-06-28", "2024-06-29", "2024-06-30"];
-$available_times = ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"];
+$available_times = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
 
-$sql = "SELECT DISTINCT date FROM appointments";
+$sql = "SELECT DISTINCT Date FROM Scheduling";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        $available_dates[] = $row['date'];
+        $available_dates[] = $row['Date'];
     }
 }
 
@@ -33,11 +33,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $selected_time = isset($_POST['selected_time']) ? htmlspecialchars($_POST['selected_time']) : null;
 
     if ($selected_date && $selected_time) {
-        // Prepare SQL statement to insert data into appointments table
-        $sql = "INSERT INTO appointments (date, time) VALUES ('$selected_date', '$selected_time')";
+        // Prepare SQL statement to insert data into Scheduling table
+        $stmt = $conn->prepare("INSERT INTO Scheduling (PatientID, Date, Time, Doctor) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("isss", $patientID, $selected_date, $selected_time, $doctor);
+        
+        // Set the parameters
+        $patientID = 1; // Example patient ID, replace with actual data
+        $doctor = 'Dr. Smith'; // Example doctor name, replace with actual data
 
         // Execute SQL statement
-        if ($conn->query($sql) === TRUE) {
+        if ($stmt->execute() === TRUE) {
             session_start();
             $_SESSION['appointment'] = [
                 'date' => $selected_date,
@@ -46,8 +51,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             header("Location: confirmation.php"); // Redirect to confirmation page
             exit();
         } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
+            echo "Error: " . $stmt->error;
         }
+        $stmt->close();
     }
 }
 
