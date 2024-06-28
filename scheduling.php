@@ -222,7 +222,7 @@
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 const startDay = new Date(year, month, 1).getDay();
 
-                monthYear.innerText = ${monthNames[month]} ${year};
+                monthYear.innerText = `${monthNames[month]} ${year}`;
 
                 for (let i = 0; i < startDay; i++) {
                     const emptyDiv = document.createElement('div');
@@ -232,7 +232,7 @@
 
                 for (let i = 1; i <= daysInMonth; i++) {
                     const dayDiv = document.createElement('div');
-                    dayDiv.classListA.add('calendar-day');
+                    dayDiv.classList.add('calendar-day');
                     dayDiv.innerText = i;
                     dayDiv.addEventListener('click', () => {
                         // Add your selection logic here
