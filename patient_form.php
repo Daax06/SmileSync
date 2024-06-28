@@ -1,14 +1,12 @@
-<?php
-include 'db_connect.php';
-?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Patient List</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmileSync - Patient Page</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
-        *{
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -16,62 +14,40 @@ include 'db_connect.php';
         }
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-image: url('dentist_background.jpg');
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center;
+            background-color: #f4f4f4;
+            padding-top: 70px; /* Add padding-top to make space for the fixed header */
         }
+
         .container {
+            width: 80%;
             max-width: 1000px;
-            background: #fff;
+            margin: 20px auto;
+            background-color: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            text-align: center;
+
+        .section {
+            margin-bottom: 20px;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+
+        .section h2 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            color: #4CAF50;
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+
+        .section p, .section ul {
+            margin-bottom: 10px;
+            line-height: 1.6;
         }
-        th {
-            background-color: #f2f2f2;
+
+        .section ul {
+            list-style-type: disc;
+            margin-left: 20px;
         }
-        form {
-            margin-top: 20px;
-        }
-        form input, form select, form textarea {
-            width: calc(100% - 16px);
-            padding: 8px;
-            margin: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        form button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        form button:hover {
-            background-color: #45a049;
-        }
+
         #header {
             background-color: #59B0CC;
             color: #fff;
@@ -89,8 +65,8 @@ include 'db_connect.php';
             margin: 0;
             font-size: 24px;
             text-shadow: 2px 2px 4px #000;
-            position: relative; 
-            left: -10px; 
+            position: relative;
+            left: -10px;
         }
 
         #nav ul {
@@ -115,46 +91,20 @@ include 'db_connect.php';
         #nav ul li a:hover {
             text-decoration: underline;
         }
+
+        .thin-header {
+            height: 50px;
+            padding: 10px 0;
+            transition: height 0.3s ease;
+        }
+
+        .thin-header h1 {
+            font-size: 24px;
+        }
     </style>
-    <script>
-        function fetchPatients() {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'fetch_patients.php', true);
-            xhr.onload = function() {
-                if (this.status == 200) {
-                    document.getElementById('patient-list').innerHTML = this.responseText;
-                }
-            };
-            xhr.send();
-        }
-
-        function addPatient(event) {
-            event.preventDefault();
-
-            var patientName = document.getElementById('patient_name').value;
-            var age = document.getElementById('age').value;
-            var gender = document.getElementById('gender').value;
-            var address = document.getElementById('address').value;
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'patient_form.php', true);
-            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            xhr.onload = function() {
-                if (this.status == 200) {
-                    fetchPatients();
-                    document.getElementById('patientForm').reset();
-                }
-            };
-            xhr.send('patient_name=' + patientName + '&age=' + age + '&gender=' + gender + '&address=' + address);
-        }
-
-        window.onload = function() {
-            fetchPatients();
-        }
-    </script>
 </head>
 <body>
-<header id="header">
+    <header id="header">
         <h1>SmileSync</h1>
         <nav id="nav">
             <ul>
@@ -163,38 +113,48 @@ include 'db_connect.php';
                 <li><a href="login.php">Login</a></li>
                 <li><a href="patient_form.php">Patient Page</a></li>
                 <li><a href="scheduling.php">Scheduling</a></li>
-                <?php if (isset($_SESSION["name"])): ?>
-                    <li><a href="logout.php">Logout (<?php echo htmlspecialchars($_SESSION["name"]); ?>)</a></li>
-                <?php endif; ?>
             </ul>
         </nav>
     </header>
+
     <div class="container">
-        <h1>Patient List</h1>
-        <div id="patient-list">
-            <!-- Patient list will be loaded here by JavaScript -->
+        <div class="section">
+            <h2>Personal Information</h2>
+            <p>Name: John Doe</p>
+            <p>Age: 30</p>
+            <p>Gender: Male</p>
+            <p>Contact: johndoe@example.com</p>
+        </div>
+        
+        <div class="section">
+            <h2>Treatments Conducted</h2>
+            <ul>
+                <li>Teeth Cleaning - January 15, 2024</li>
+                <li>Cavity Filling - March 22, 2024</li>
+                <li>Root Canal - June 5, 2024</li>
+            </ul>
         </div>
 
-        <h2>Add New Patient</h2>
-        <form id="patientForm" onsubmit="addPatient(event)">
-            <label for="patient_name">Name:</label>
-            <input type="text" id="patient_name" name="patient_name" required><br>
+        <div class="section">
+            <h2>Maintenance Medications</h2>
+            <p>None</p>
+        </div>
 
-            <label for="age">Age:</label>
-            <input type="number" id="age" name="age" required><br>
+        <div class="section">
+            <h2>Current Schedule</h2>
+            <ul>
+                <li>Dental Check-up - July 10, 2024 at 10:00 AM</li>
+            </ul>
+        </div>
 
-            <label for="gender">Gender:</label>
-            <select id="gender" name="gender" required>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-            </select><br>
-
-            <label for="address">Address:</label>
-            <textarea id="address" name="address" rows="4" required></textarea><br>
-
-            <button type="submit">Submit</button>
-        </form>
+        <div class="section">
+            <h2>History of Appointments</h2>
+            <ul>
+                <li>Teeth Cleaning - January 15, 2024</li>
+                <li>Cavity Filling - March 22, 2024</li>
+                <li>Root Canal - June 5, 2024</li>
+            </ul>
+        </div>
     </div>
 </body>
 </html>
