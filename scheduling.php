@@ -19,6 +19,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            padding-top: 70px; /* Add padding-top to make space for the fixed header */
         }
 
         .appointment-container {
@@ -240,6 +241,7 @@
     </script>
 
     <?php
+
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $selected_date = $_POST['selected_date'];
         $selected_time = $_POST['selected_time'];
@@ -263,13 +265,7 @@
 
         // Execute SQL statement
         if ($conn->query($sql) === TRUE) {
-            session_start();
-            $_SESSION['appointment'] = [
-                'date' => $selected_date,
-                'time' => $selected_time
-            ];
-            header("Location: confirmation.php");
-            exit();
+            echo "<p>Appointment booked successfully for $selected_date at $selected_time</p>";
         } else {
             echo "Error: " . $sql . "<br>" . $conn->error;
         }
