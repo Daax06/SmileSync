@@ -1,66 +1,122 @@
-<?php
-// Define available dates and times
-$available_dates = ["2024-06-28", "2024-06-29", "2024-06-30"];
-$timeslots = ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"];
-
-// Handle form submission
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Validate and sanitize input
-    $selected_date = isset($_POST['selected_date']) ? htmlspecialchars($_POST['selected_date']) : null;
-    $selected_time = isset($_POST['selected_time']) ? htmlspecialchars($_POST['selected_time']) : null;
-
-    if ($selected_date && $selected_time) {
-        // Process the appointment booking (for example, inserting into a database)
-        // Replace with your actual database connection details
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "patient_database";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-
-        // Prepare SQL statement to insert data into appointments table
-        $sql = "INSERT INTO appointments (date, time) VALUES ('$selected_date', '$selected_time')";
-
-        // Execute SQL statement
-        if ($conn->query($sql) === TRUE) {
-            session_start();
-            $_SESSION['appointment'] = [
-                'date' => $selected_date,
-                'time' => $selected_time
-            ];
-            header("Location: confirmation.php"); // Redirect to confirmation page
-            exit();
-        } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
-        }
-
-        // Close connection
-        $conn->close();
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmileSync - Dental Appointment Booking</title>
+    <title>Simple Web Page</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding-top: 70px; /* Add padding-top to make space for the fixed header */
         }
         header {
+            background-color: #2196F3; /* Blue theme */
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            background-color: rgba(203, 211, 255, 0.555);
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            height: 450px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .column {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .column:nth-child(1) {
+            flex: 0 0 20%;
+        }
+        .column:nth-child(2) {
+            flex: 0 0 55%;
+        }
+        .column:nth-child(3) {
+            flex: 0 0 25%;
+        }
+        .column:not(:last-child) {
+            border-right: 1px solid #ddd;
+        }
+        .time-buttons {
+            text-align: center;
+            margin-top: 20px; /* Adjusted margin */
+        }
+        .time-buttons h2 {
+            margin-bottom: 10px;
+        }
+        .time-buttons button {
+            display: block;
+            margin: 5px auto;
+            padding: 8px 10px; /* Adjusted padding */
+            width: 90px; /* Adjusted width */
+            background-color: #2196F3; /* Blue theme */
+            color: white;
+            border: none;
+            border-radius: 20px; /* Rounded edges */
+            cursor: pointer;
+        }
+        .time-buttons button:hover {
+            background-color: #1976D2; /* Darker shade of blue on hover */
+        }
+        .calendar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .calendar-header button {
+            background-color: #2196F3; /* Blue theme */
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 20px; /* Rounded edges */
+        }
+        .calendar-header button:hover {
+            background-color: #1976D2; /* Darker shade of blue on hover */
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            width: 100%;
+        }
+        .calendar-grid .calendar-day {
+            background-color: #f0f0f0;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ccc; /* Clear lines */
+            cursor: pointer;
+        }
+        .calendar-grid .calendar-day:hover {
+            background-color: #e0e0e0; /* Lighter shade on hover */
+        }
+        .calendar-grid .calendar-day.selected {
+            background-color: #2196F3; /* Selected color */
+            color: white;
+        }
+        #header {
             background-color: #59B0CC;
             color: #fff;
             padding: 15px;
@@ -72,125 +128,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             width: 100%;
             top: 0;
         }
-        header h1 {
+
+        #header h1 {
             margin: 0;
             font-size: 24px;
             text-shadow: 2px 2px 4px #000;
+            position: relative;
+            left: -10px;
         }
+
         #nav ul {
             list-style-type: none;
             margin: 0;
             padding: 0;
             margin-right: 200px;
         }
+
         #nav ul li {
             display: inline;
             margin-left: 20px;
         }
+
         #nav ul li a {
             text-decoration: none;
             color: #fff;
             font-size: 18px;
             text-shadow: 2px 2px 4px #000;
         }
+
         #nav ul li a:hover {
             text-decoration: underline;
         }
-        .appointment-container {
-            background-color: rgba(203, 211, 255, 0.555);
-            margin: 20px auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            height: 450px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .title-column {
-            flex: 0 0 20%;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .title-column h1 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-        }
-        .calendar {
-            flex: 0 0 55%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .calendar h3 {
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-        .calendar table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        .calendar th,
-        .calendar td {
-            padding: 10px;
-            text-align: center;
-            border: 1px solid #ccc;
-        }
-        .calendar th {
-            background-color: #f2f2f2;
-        }
-        .calendar td {
-            cursor: pointer;
-        }
-        .calendar td.booked {
-            background-color: #ccc;
-            color: #666;
-            cursor: not-allowed;
-        }
-        .calendar td.selected {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .time-slots {
-            flex: 0 0 25%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .time-slot {
-            margin-bottom: 10px;
-            padding: 10px;
-            width: 80px;
-            text-align: center;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .time-slot.disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        .time-slot.selected {
-            background-color: #4CAF50;
-            color: white;
-        }
-        #appointment-form {
-            margin-top: 20px;
-        }
-        #appointment-form input[type="submit"] {
-            padding: 10px 20px;
-            background-color: #59B0CC;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        #appointment-form input[type="submit"]:hover {
-            background-color: #4F96AB;
+
+        .thin-header {
+            height: 50px;
+            padding: 10px 0;
+            transition: height 0.3s ease;
         }
     </style>
 </head>
@@ -207,66 +180,83 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </ul>
         </nav>
     </header>
-
-    <div class="appointment-container">
-        <div class="title-column">
-            <h1>SmileSync - Dental Appointment Booking</h1>
-            <p>Select a date and time for your appointment:</p>
+    <div class="container">
+        <div class="column">
+            <h2>Welcome to SmileSync Appointment Setting</h2>
+            <p>blah blah blah dito instructions pano mag pa sched paras a mga tanga</p>
         </div>
-        
-        <div class="calendar">
-            <?php
-            // Generate calendar
-            foreach ($available_dates as $date) {
-                echo '<h3>' . date("F j, Y", strtotime($date)) . '</h3>';
-                echo '<table>';
-                echo '<tr><th>Time</th><th>Status</th></tr>';
-                foreach ($timeslots as $time) {
-                    echo '<tr><td>' . $time . '</td><td>Available</td></tr>';
-                }
-                echo '</table>';
-            }
-            ?>
+        <div class="column">
+            <div class="calendar">
+                <div class="calendar-header">
+                    <button id="prevMonth">Previous</button>
+                    <div id="monthYear"></div>
+                    <button id="nextMonth">Next</button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
         </div>
-        
-        <div class="time-slots">
-            <?php
-            // Generate time slots buttons
-            foreach ($timeslots as $time) {
-                echo '<button class="time-slot" data-time="' . $time . '">' . $time . '</button>';
-            }
-            ?>
+        <div class="column">
+            <div class="time-buttons">
+                <h2>Time Available</h2>
+                <button>9:00 AM</button>
+                <button>10:00 AM</button>
+                <button>11:00 AM</button>
+                <button>12:00 PM</button>
+                <button>1:00 PM</button>
+                <button>2:00 PM</button>
+                <button>3:00 PM</button>
+                <button>4:00 PM</button>
+            </div>
         </div>
-        
-        <form id="appointment-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
-            <input type="hidden" id="selected-date" name="selected_date">
-            <input type="hidden" id="selected-time" name="selected_time">
-            <input type="submit" value="Book Appointment" disabled>
-        </form>
     </div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const calendarCells = document.querySelectorAll('.calendar td:not(.booked)');
-            const timeSlots = document.querySelectorAll('.time-slot');
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const monthYear = document.getElementById('monthYear');
+            const calendarGrid = document.getElementById('calendarGrid');
+            let currentMonth = new Date().getMonth(); // Set to current month (June is 5 because months are zero-indexed)
+            let currentYear = new Date().getFullYear();
 
-            calendarCells.forEach(cell => {
-                cell.addEventListener('click', function() {
-                    calendarCells.forEach(cell => cell.classList.remove('selected'));
-                    this.classList.add('selected');
-                    document.getElementById('selected-date').value = this.parentElement.querySelector('h3').innerText;
-                    document.getElementById('appointment-form').querySelector('input[type="submit"]').disabled = false;
-                });
+            function generateCalendar(month, year) {
+                calendarGrid.innerHTML = '';
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const startDay = new Date(year, month, 1).getDay();
+
+                monthYear.innerText = ${monthNames[month]} ${year};
+
+                for (let i = 0; i < startDay; i++) {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.classList.add('calendar-day');
+                    calendarGrid.appendChild(emptyDiv);
+                }
+
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.classListA.add('calendar-day');
+                    dayDiv.innerText = i;
+                    dayDiv.addEventListener('click', () => {
+                        // Add your selection logic here
+                        dayDiv.classList.toggle('selected');
+                    });
+                    calendarGrid.appendChild(dayDiv);
+                }
+            }
+
+            document.getElementById('prevMonth').addEventListener('click', () => {
+                if (currentMonth > new Date().getMonth() - 1) {
+                    currentMonth = (currentMonth === 0) ? 11 : currentMonth - 1;
+                    currentYear = (currentMonth === 11) ? currentYear - 1 : currentYear;
+                    generateCalendar(currentMonth, currentYear);
+                }
             });
 
-            timeSlots.forEach(slot => {
-                slot.addEventListener('click', function() {
-                    timeSlots.forEach(slot => slot.classList.remove('selected'));
-                    this.classList.add('selected');
-                    document.getElementById('selected-time').value = this.getAttribute('data-time');
-                    document.getElementById('appointment-form').querySelector('input[type="submit"]').disabled = false;
-                });
+            document.getElementById('nextMonth').addEventListener('click', () => {
+                currentMonth = (currentMonth === 11) ? 0 : currentMonth + 1;
+                currentYear = (currentMonth === 0) ? currentYear + 1 : currentYear;
+                generateCalendar(currentMonth, currentYear);
             });
+
+            generateCalendar(currentMonth, currentYear);
         });
     </script>
 </body>
