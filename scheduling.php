@@ -240,7 +240,6 @@
     </script>
 
     <?php
-
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $selected_date = $_POST['selected_date'];
         $selected_time = $_POST['selected_time'];
@@ -264,7 +263,13 @@
 
         // Execute SQL statement
         if ($conn->query($sql) === TRUE) {
-            echo "<p>Appointment booked successfully for $selected_date at $selected_time</p>";
+            session_start();
+            $_SESSION['appointment'] = [
+                'date' => $selected_date,
+                'time' => $selected_time
+            ];
+            header("Location: confirmation.php");
+            exit();
         } else {
             echo "Error: " . $sql . "<br>" . $conn->error;
         }
