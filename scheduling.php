@@ -14,7 +14,7 @@ if ($conn->connect_error) {
 }
 
 // Fetch available dates and times
-$available_dates = [];
+$available_dates = ["2024-06-28", "2024-06-29", "2024-06-30"];
 $available_times = ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"];
 
 $sql = "SELECT DISTINCT date FROM appointments";
