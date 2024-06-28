@@ -207,7 +207,7 @@
             ?>
         </div>
         
-        <form id="appointment-form" action="scheduling.php" method="POST">
+        <form id="appointment-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
             <input type="hidden" id="selected-date" name="selected_date">
             <input type="hidden" id="selected-time" name="selected_time">
             <input type="submit" value="Book Appointment" disabled>
