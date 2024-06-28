@@ -67,8 +67,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 100vh;
-            padding-top: 70px; /* Add padding-top to make space for the fixed header */
+            z-index: 1;
+            position: fixed;
+            width: 100%;
+            top: 0;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px #000;
+        }
+        #nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            margin-right: 200px;
+        }
+        #nav ul li {
+            display: inline;
+            margin-left: 20px;
+        }
+        #nav ul li a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px #000;
         }
         #nav ul li a:hover {
             text-decoration: underline;
@@ -246,40 +269,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             });
         });
     </script>
-
-    <?php
-
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $selected_date = $_POST['selected_date'];
-        $selected_time = $_POST['selected_time'];
-
-        // Database connection details (replace with your actual database credentials)
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "patient_database";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-
-        // Prepare SQL statement to insert data into appointments table
-        $sql = "INSERT INTO appointments (date, time) VALUES ('$selected_date', '$selected_time')";
-
-        // Execute SQL statement
-        if ($conn->query($sql) === TRUE) {
-            echo "<p>Appointment booked successfully for $selected_date at $selected_time</p>";
-        } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
-        }
-
-        // Close connection
-        $conn->close();
-    }
-    ?>
 </body>
 </html>
