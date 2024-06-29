@@ -98,6 +98,11 @@
                 <li><a href="login.php">Login</a></li>
                 <li><a href="patient_form.php">Patient Page</a></li>
                 <li><a href="scheduling.php">Scheduling</a></li>
+                <?php if (isset($_SESSION['user_id'])) {
+                echo "Welcome, " . $_SESSION['username'] . "! <a href='logout.php'>Logout</a>";
+                } else {
+                echo "<a href='login.php'>Login</a>";
+                }?>
             </ul>
         </nav>
     </header>
@@ -186,7 +191,7 @@
         </div>
         // Fetch current schedule
         <?php
-        
+
         $sql = "SELECT Date, Time FROM Scheduling WHERE PatientID = $patientID AND Date >= CURDATE() ORDER BY Date, Time LIMIT 1";
         $result = $conn->query($sql);
         if ($result->num_rows > 0) {

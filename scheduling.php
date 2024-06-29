@@ -229,6 +229,11 @@ $conn->close();
                 <li><a href="login.php">Login</a></li>
                 <li><a href="patient_form.php">Patient Page</a></li>
                 <li><a href="scheduling.php">Scheduling</a></li>
+                <?php if (isset($_SESSION['user_id'])) {
+                echo "Welcome, " . $_SESSION['username'] . "! <a href='logout.php'>Logout</a>";
+                } else {
+                echo "<a href='login.php'>Login</a>";
+                }?>
             </ul>
         </nav>
     </header>
