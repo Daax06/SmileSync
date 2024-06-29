@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 // Database connection details
 $servername = "localhost";
 $username = "root";
@@ -20,10 +22,12 @@ $available_times = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00
 $sql = "SELECT DISTINCT Date FROM Scheduling";
 $result = $conn->query($sql);
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $available_dates[] = $row['Date'];
-    }
+if ($result === false) {
+    die("Error fetching available dates: " . $conn->error);
+}
+
+while ($row = $result->fetch_assoc()) {
+    $available_dates[] = $row['Date'];
 }
 
 // Handle form submission
@@ -35,19 +39,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($selected_date && $selected_time) {
         // Prepare SQL statement to insert data into Scheduling table
         $stmt = $conn->prepare("INSERT INTO Scheduling (PatientID, Date, Time, Doctor) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("isss", $patientID, $selected_date, $selected_time, $doctor);
+        if ($stmt === false) {
+            die("Error preparing statement: " . $conn->error);
+        }
         
         // Set the parameters
         $patientID = 1; // Example patient ID, replace with actual data
         $doctor = 'Dr. Smith'; // Example doctor name, replace with actual data
+        
+        $stmt->bind_param("isss", $patientID, $selected_date, $selected_time, $doctor);
 
         // Execute SQL statement
         if ($stmt->execute() === TRUE) {
-            session_start();
             $_SESSION['appointment'] = [
                 'date' => $selected_date,
                 'time' => $selected_time
             ];
+            $stmt->close();
+            $conn->close();
             header("Location: confirmation.php"); // Redirect to confirmation page
             exit();
         } else {
@@ -60,6 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 // Close connection
 $conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
