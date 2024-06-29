@@ -132,7 +132,7 @@
         // Check connection
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
-        }
+        }  ?>   
 
         <div class="section">
             <h2>Maintenance Medications</h2>
@@ -163,6 +163,7 @@
             </ul>
         </div>
         // Fetch treatments conducted
+        <?php
         $sql = "SELECT TreatmentStart FROM Progress WHERE PatientID = $patientID";
         $result = $conn->query($sql);
         if ($result->num_rows > 0) {
@@ -174,7 +175,7 @@
         } else {
             echo "<div class='section'><h2>Treatments Conducted</h2><p>No treatments conducted.</p></div>";
         }
-
+        ?>
         <div class="section">
             <h2>History of Appointments</h2>
             <ul>
@@ -184,6 +185,7 @@
             </ul>
         </div>
         // Fetch current schedule
+        <?php
         $sql = "SELECT Date, Time FROM Scheduling WHERE PatientID = $patientID AND Date >= CURDATE() ORDER BY Date, Time LIMIT 1";
         $result = $conn->query($sql);
         if ($result->num_rows > 0) {
