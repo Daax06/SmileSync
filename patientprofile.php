@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmileSync - Patient Page</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@100;400;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Roboto Condensed', sans-serif;
         }
+        
         body {
-            font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             padding-top: 70px; /* Add padding-top to make space for the fixed header */
         }
@@ -65,19 +66,16 @@
             margin: 0;
             font-size: 24px;
             text-shadow: 2px 2px 4px #000;
-            position: relative;
-            left: -10px;
         }
 
         #nav ul {
             list-style-type: none;
             margin: 0;
             padding: 0;
-            margin-right: 200px;
+            display: flex;
         }
 
         #nav ul li {
-            display: inline;
             margin-left: 20px;
         }
 
