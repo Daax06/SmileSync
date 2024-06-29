@@ -1,6 +1,4 @@
 <?php
-session_start();
-
 // Database connection details
 $servername = "localhost";
 $username = "root";
@@ -15,21 +13,6 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch available dates and times
-$available_dates = ["2024-06-28", "2024-06-29", "2024-06-30"];
-$available_times = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
-
-$sql = "SELECT DISTINCT Date FROM Scheduling";
-$result = $conn->query($sql);
-
-if ($result === false) {
-    die("Error fetching available dates: " . $conn->error);
-}
-
-while ($row = $result->fetch_assoc()) {
-    $available_dates[] = $row['Date'];
-}
-
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Validate and sanitize input
@@ -37,26 +20,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $selected_time = isset($_POST['selected_time']) ? htmlspecialchars($_POST['selected_time']) : null;
 
     if ($selected_date && $selected_time) {
-        // Prepare SQL statement to insert data into Scheduling table
-        $stmt = $conn->prepare("INSERT INTO Scheduling (PatientID, Date, Time, Doctor) VALUES (?, ?, ?, ?)");
-        if ($stmt === false) {
-            die("Error preparing statement: " . $conn->error);
-        }
-        
-        // Set the parameters
-        $patientID = 1; // Example patient ID, replace with actual data
-        $doctor = 'Dr. Smith'; // Example doctor name, replace with actual data
-        
-        $stmt->bind_param("isss", $patientID, $selected_date, $selected_time, $doctor);
+        // Example: Check if patient exists, or insert new patient record
+        // For simplicity, assume we have a function to handle this
+        $patientID = getPatientID($conn); // Implement this function to get or insert a patient ID
 
-        // Execute SQL statement
+        // Prepare SQL statement to insert data into Scheduling table
+        $stmt = $conn->prepare("INSERT INTO scheduling (PatientID, Date, Time, Doctor) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("iss", $patientID, $selected_date, $selected_time, $doctor);
+
+        // Set parameters and execute SQL statement
+        $doctor = 'Dr. Smith'; // Example doctor name, replace with actual data
+
         if ($stmt->execute() === TRUE) {
+            session_start();
             $_SESSION['appointment'] = [
                 'date' => $selected_date,
                 'time' => $selected_time
             ];
-            $stmt->close();
-            $conn->close();
             header("Location: confirmation.php"); // Redirect to confirmation page
             exit();
         } else {
@@ -64,6 +44,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         $stmt->close();
     }
+}
+
+// Function to get or insert patient ID (example function, adjust as per your actual logic)
+function getPatientID($conn) {
+    // Example: Inserting a new patient record if not exists and returning the ID
+    $firstName = 'John'; // Example first name, replace with actual data
+    $lastName = 'Doe'; // Example last name, replace with actual data
+
+    $stmt = $conn->prepare("INSERT INTO patient (FirstName, LastName) VALUES (?, ?)");
+    $stmt->bind_param("ss", $firstName, $lastName);
+    $stmt->execute();
+
+    $patientID = $stmt->insert_id;
+
+    $stmt->close();
+
+    return $patientID;
 }
 
 // Close connection
@@ -76,51 +73,15 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmileSync - Scheduling</title>
+    <title>SmileSync - Dental Appointment Booking</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@100;400;700&display=swap');
-        * {
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Roboto Condensed', sans-serif;
         }
-        body {
-            background-color: #f4f4f4;
-            padding-top: 70px; /* Add padding-top to make space for the fixed header */
-        }
-
-        .container {
-            width: 80%;
-            max-width: 1000px;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .section {
-            margin-bottom: 20px;
-        }
-
-        .section h2 {
-            margin-bottom: 10px;
-            font-size: 1.5rem;
-            color: #4CAF50;
-        }
-
-        .section p, .section ul {
-            margin-bottom: 10px;
-            line-height: 1.6;
-        }
-
-        .section ul {
-            list-style-type: disc;
-            margin-left: 20px;
-        }
-
-        #header {
+        header {
             background-color: #59B0CC;
             color: #fff;
             padding: 15px;
@@ -132,31 +93,27 @@ $conn->close();
             width: 100%;
             top: 0;
         }
-
-        #header h1 {
+        header h1 {
             margin: 0;
             font-size: 24px;
             text-shadow: 2px 2px 4px #000;
         }
-
         #nav ul {
             list-style-type: none;
             margin: 0;
             padding: 0;
-            display: flex;
+            margin-right: 200px;
         }
-
         #nav ul li {
+            display: inline;
             margin-left: 20px;
         }
-
         #nav ul li a {
             text-decoration: none;
             color: #fff;
             font-size: 18px;
             text-shadow: 2px 2px 4px #000;
         }
-
         #nav ul li a:hover {
             text-decoration: underline;
         }
@@ -262,18 +219,33 @@ $conn->close();
         </nav>
     </header>
 
-    <div class="container">
-        <div class="section">
-            <h2>Schedule an Appointment</h2>
-            <form action="scheduling.php" method="POST">
-                <label for="patientID">Patient ID:</label>
-                <input type="text" id="patientID" name="patientID" required><br><br>
-                <label for="date">Date:</label>
-                <input type="date" id="date" name="date" required><br><br>
-                <label for="time">Time:</label>
-                <input type="time" id="time" name="time" required><br><br>
-                <input type="submit" value="Schedule Appointment">
-            </form>
+    <div class="appointment-container">
+        <div class="title-column">
+            <h1>SmileSync - Dental Appointment Booking</h1>
+            <p>Select a date and time for your appointment:</p>
+        </div>
+        
+        <div class="calendar">
+            <div class="calendar-header">
+                <button id="prevMonth">Previous</button>
+                <div id="monthYear"></div>
+                <button id="nextMonth">Next</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sun</th>
+                        <th>Mon</th>
+                        <th>Tue</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th>Sat</th>
+                    </tr>
+                </thead>
+                <tbody id="calendar-body">
+                </tbody>
+            </table>
         </div>
         
         <div class="time-slots">
@@ -396,4 +368,3 @@ $conn->close();
     </script>
 </body>
 </html>
-
