@@ -14,10 +14,10 @@ if ($conn->connect_error) {
 }
 
 // Fetch available dates and times
-$available_dates = ["2024-06-28", "2024-06-29", "2024-06-30"];
+$available_dates = [];
 $available_times = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
 
-$sql = "SELECT DISTINCT Date FROM Scheduling";
+$sql = "SELECT DISTINCT Date FROM scheduling";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
@@ -34,15 +34,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($selected_date && $selected_time) {
         // Prepare SQL statement to insert data into Scheduling table
-        $stmt = $conn->prepare("INSERT INTO Scheduling (PatientID, Date, Time, Doctor) VALUES (?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO scheduling (PatientID, Date, Time, Doctor) VALUES (?, ?, ?, ?)");
         $stmt->bind_param("isss", $patientID, $selected_date, $selected_time, $doctor);
         
         // Set the parameters
-        $patientID = 1; // Example patient ID, replace with actual data
+        $patientID = 1; // Replace with actual patient ID from session or form input
         $doctor = 'Dr. Smith'; // Example doctor name, replace with actual data
 
         // Execute SQL statement
         if ($stmt->execute() === TRUE) {
+            // Example session handling (you can adjust this as per your application flow)
             session_start();
             $_SESSION['appointment'] = [
                 'date' => $selected_date,
@@ -61,6 +62,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 $conn->close();
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmileSync - Dental Appointment Booking</title>
+    <!-- Your CSS styles -->
+</head>
+<body>
+    <!-- Your HTML content -->
+    <div class="appointment-container">
+        <!-- Appointment booking form -->
+        <form id="appointment-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+            <!-- Hidden inputs for selected date and time -->
+            <input type="hidden" id="selected-date" name="selected_date">
+            <input type="hidden" id="selected-time" name="selected_time">
+            <!-- Submit button -->
+            <input type="submit" value="Book Appointment" disabled>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // JavaScript for calendar and time slot selection
+            // Ensure to handle calendar and time slot UI as per your requirements
+        });
+    </script>
+</body>
+</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
