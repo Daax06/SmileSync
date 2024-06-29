@@ -13,7 +13,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch available dates and times
+// Fetch available dates from the Scheduling table
 $available_dates = ["2024-06-28", "2024-06-29", "2024-06-30"];
 $available_times = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
 
@@ -27,6 +27,7 @@ if ($result->num_rows > 0) {
 }
 
 // Handle form submission
+session_start();
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Validate and sanitize input
     $selected_date = isset($_POST['selected_date']) ? htmlspecialchars($_POST['selected_date']) : null;
@@ -43,12 +44,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // Execute SQL statement
         if ($stmt->execute() === TRUE) {
-            session_start();
+            $_SESSION['appointment_confirmed'] = true;
             $_SESSION['appointment'] = [
                 'date' => $selected_date,
                 'time' => $selected_time
             ];
-            header("Location: confirmation.php"); // Redirect to confirmation page
+            header("Location: scheduling.php"); // Reload the page
             exit();
         } else {
             echo "Error: " . $stmt->error;
@@ -68,12 +69,19 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmileSync - Dental Appointment Booking</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto Condensed', sans-serif;
         }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding-top: 70px; /* Add padding-top to make space for the fixed header */
+        }
+
         header {
             background-color: #59B0CC;
             color: #fff;
@@ -208,6 +216,12 @@ $conn->close();
     </style>
 </head>
 <body>
+    <?php if (isset($_SESSION['appointment_confirmed']) && $_SESSION['appointment_confirmed']): ?>
+        <script>
+            alert("Your schedule has been confirmed");
+            <?php unset($_SESSION['appointment_confirmed']); ?>
+        </script>
+    <?php endif; ?>
     <header id="header">
         <h1>SmileSync</h1>
         <nav id="nav">
@@ -258,7 +272,9 @@ $conn->close();
             }
             ?>
         </div>
-        
+    </div>
+
+    <div id="form-container">
         <form id="appointment-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
             <input type="hidden" id="selected-date" name="selected_date">
             <input type="hidden" id="selected-time" name="selected_time">
@@ -272,28 +288,23 @@ $conn->close();
             const monthYear = document.getElementById('monthYear');
             const timeSlots = document.querySelectorAll('.time-slot');
             let currentMonth = new Date().getMonth(); // Current month (0-11)
-            let currentYear = new Date().getFullYear();
+            let currentYear = new Date().getFullYear(); // Current year
 
+            // Available dates array from PHP
             const availableDates = <?php echo json_encode($available_dates); ?>;
             const availableTimes = <?php echo json_encode($available_times); ?>;
 
             function generateCalendar(month, year) {
-                // Display current month and year
                 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
                 monthYear.innerText = monthNames[month] + ' ' + year;
 
-                // Clear previous calendar
                 calendarBody.innerHTML = '';
-
-                // Get the first day of the month
                 const firstDay = new Date(year, month).getDay();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-                // Create calendar cells
                 let date = 1;
                 for (let i = 0; i < 6; i++) {
                     let row = document.createElement('tr');
-
                     for (let j = 0; j < 7; j++) {
                         if (i === 0 && j < firstDay) {
                             let cell = document.createElement('td');
@@ -306,8 +317,7 @@ $conn->close();
                             let cellText = document.createTextNode(date);
                             cell.appendChild(cellText);
 
-                            const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-
+                            const fullDate = ${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')};
                             if (availableDates.includes(fullDate)) {
                                 cell.classList.add('available');
                                 cell.addEventListener('click', function() {
@@ -324,15 +334,12 @@ $conn->close();
                             date++;
                         }
                     }
-
                     calendarBody.appendChild(row);
                 }
             }
 
-            // Initial calendar generation
             generateCalendar(currentMonth, currentYear);
 
-            // Event listeners for navigation buttons
             document.getElementById('prevMonth').addEventListener('click', function() {
                 currentMonth = (currentMonth === 0) ? 11 : currentMonth - 1;
                 currentYear = (currentMonth === 11) ? currentYear - 1 : currentYear;
@@ -345,7 +352,6 @@ $conn->close();
                 generateCalendar(currentMonth, currentYear);
             });
 
-            // Event listener for time slots
             timeSlots.forEach(slot => {
                 slot.addEventListener('click', function() {
                     timeSlots.forEach(slot => slot.classList.remove('selected'));

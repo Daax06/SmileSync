@@ -186,6 +186,7 @@
         </div>
         // Fetch current schedule
         <?php
+        
         $sql = "SELECT Date, Time FROM Scheduling WHERE PatientID = $patientID AND Date >= CURDATE() ORDER BY Date, Time LIMIT 1";
         $result = $conn->query($sql);
         if ($result->num_rows > 0) {
