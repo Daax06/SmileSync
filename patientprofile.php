@@ -6,14 +6,12 @@
     <title>SmileSync - Patient Page</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@100;400;700&display=swap');
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Roboto Condensed', sans-serif;
         }
-        
         body {
             background-color: #f4f4f4;
             padding-top: 70px; /* Add padding-top to make space for the fixed header */
@@ -116,43 +114,83 @@
     </header>
 
     <div class="container">
-        <div class="section">
-            <h2>Personal Information</h2>
-            <p>Name: John Doe</p>
-            <p>Age: 30</p>
-            <p>Gender: Male</p>
-            <p>Contact: johndoe@example.com</p>
-        </div>
-        
-        <div class="section">
-            <h2>Treatments Conducted</h2>
-            <ul>
-                <li>Teeth Cleaning - January 15, 2024</li>
-                <li>Cavity Filling - March 22, 2024</li>
-                <li>Root Canal - June 5, 2024</li>
-            </ul>
-        </div>
+        <?php
+        // Database connection details
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "patient_database";
 
-        <div class="section">
-            <h2>Maintenance Medications</h2>
-            <p>None</p>
-        </div>
+        // Create connection
+        $conn = new mysqli($servername, $username, $password, $dbname);
 
-        <div class="section">
-            <h2>Current Schedule</h2>
-            <ul>
-                <li>Dental Check-up - July 10, 2024 at 10:00 AM</li>
-            </ul>
-        </div>
+        // Check connection
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
 
-        <div class="section">
-            <h2>History of Appointments</h2>
-            <ul>
-                <li>Teeth Cleaning - January 15, 2024</li>
-                <li>Cavity Filling - March 22, 2024</li>
-                <li>Root Canal - June 5, 2024</li>
-            </ul>
-        </div>
+        $patientID = 1; // Assume patient ID is 1 for demonstration purposes
+
+        // Fetch personal information
+        $sql = "SELECT PatientName, Age, Gender, Address FROM Patient WHERE PatientID = $patientID";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            echo "<div class='section'>
+                    <h2>Personal Information</h2>
+                    <p>Name: " . $row['PatientName'] . "</p>
+                    <p>Age: " . $row['Age'] . "</p>
+                    <p>Gender: " . $row['Gender'] . "</p>
+                    <p>Address: " . $row['Address'] . "</p>
+                </div>";
+        } else {
+            echo "<div class='section'><h2>Personal Information</h2><p>No information available.</p></div>";
+        }
+
+        // Fetch treatments conducted
+        $sql = "SELECT TreatmentStart FROM Progress WHERE PatientID = $patientID";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            echo "<div class='section'><h2>Treatments Conducted</h2><ul>";
+            while ($row = $result->fetch_assoc()) {
+                echo "<li>Treatment Date: " . $row['TreatmentStart'] . "</li>";
+            }
+            echo "</ul></div>";
+        } else {
+            echo "<div class='section'><h2>Treatments Conducted</h2><p>No treatments conducted.</p></div>";
+        }
+
+        // Fetch current schedule
+        $sql = "SELECT Date, Time FROM Scheduling WHERE PatientID = $patientID AND Date >= CURDATE() ORDER BY Date, Time LIMIT 1";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            echo "<div class='section'>
+                    <h2>Current Schedule</h2>
+                    <ul>
+                        <li>Dental Check-up - " . $row['Date'] . " at " . $row['Time'] . "</li>
+                    </ul>
+                </div>";
+        } else {
+            echo "<div class='section'><h2>Current Schedule</h2><p>No upcoming appointments.</p></div>";
+        }
+
+        // Fetch history of appointments
+        $sql = "SELECT Date, Time FROM Scheduling WHERE PatientID = $patientID AND Date < CURDATE() ORDER BY Date DESC";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            echo "<div class='section'><h2>History of Appointments</h2><ul>";
+            while ($row = $result->fetch_assoc()) {
+                echo "<li>Appointment Date: " . $row['Date'] . " at " . $row['Time'] . "</li>";
+            }
+            echo "</ul></div>";
+        } else {
+            echo "<div class='section'><h2>History of Appointments</h2><p>No past appointments.</p></div>";
+        }
+
+        // Close connection
+        $conn->close();
+        ?>
     </div>
 </body>
 </html>
