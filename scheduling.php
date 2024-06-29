@@ -69,19 +69,12 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmileSync - Dental Appointment Booking</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Roboto Condensed', sans-serif;
-        }
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding-top: 70px; /* Add padding-top to make space for the fixed header */
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
         }
-
         header {
             background-color: #59B0CC;
             color: #fff;
@@ -198,6 +191,11 @@ $conn->close();
             background-color: #4CAF50;
             color: white;
         }
+        #form-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
         #appointment-form {
             margin-top: 20px;
         }
@@ -286,79 +284,125 @@ $conn->close();
         document.addEventListener('DOMContentLoaded', function() {
             const calendarBody = document.getElementById('calendar-body');
             const monthYear = document.getElementById('monthYear');
+            const appointmentForm = document.getElementById('appointment-form');
+            const selectedDateInput = document.getElementById('selected-date');
+            const selectedTimeInput = document.getElementById('selected-time');
             const timeSlots = document.querySelectorAll('.time-slot');
-            let currentMonth = new Date().getMonth(); // Current month (0-11)
-            let currentYear = new Date().getFullYear(); // Current year
+            const bookAppointmentBtn = document.querySelector('#appointment-form input[type="submit"]');
+            
+            let selectedDate = null;
+            let selectedTime = null;
 
-            // Available dates array from PHP
-            const availableDates = <?php echo json_encode($available_dates); ?>;
-            const availableTimes = <?php echo json_encode($available_times); ?>;
-
-            function generateCalendar(month, year) {
-                const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                monthYear.innerText = monthNames[month] + ' ' + year;
-
-                calendarBody.innerHTML = '';
-                const firstDay = new Date(year, month).getDay();
+            // Function to update the calendar display
+            function renderCalendar(month, year) {
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-                let date = 1;
-                for (let i = 0; i < 6; i++) {
-                    let row = document.createElement('tr');
-                    for (let j = 0; j < 7; j++) {
-                        if (i === 0 && j < firstDay) {
-                            let cell = document.createElement('td');
-                            cell.appendChild(document.createTextNode(''));
-                            row.appendChild(cell);
-                        } else if (date > daysInMonth) {
-                            break;
-                        } else {
-                            let cell = document.createElement('td');
-                            let cellText = document.createTextNode(date);
-                            cell.appendChild(cellText);
-
-                            const fullDate = ${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')};
-                            if (availableDates.includes(fullDate)) {
-                                cell.classList.add('available');
-                                cell.addEventListener('click', function() {
-                                    document.querySelectorAll('.calendar td').forEach(cell => cell.classList.remove('selected'));
-                                    cell.classList.add('selected');
-                                    document.getElementById('selected-date').value = fullDate;
-                                    document.getElementById('appointment-form').querySelector('input[type="submit"]').disabled = false;
-                                });
-                            } else {
-                                cell.classList.add('booked');
-                            }
-
-                            row.appendChild(cell);
-                            date++;
+                const firstDay = new Date(year, month, 1).getDay();
+                const lastDay = new Date(year, month, daysInMonth).getDay();
+                
+                const monthNames = ["January", "February", "March", "April", "May", "June",
+                                    "July", "August", "September", "October", "November", "December"];
+                
+                let html = '';
+                let day = 1;
+                
+                // Blank spaces before the first day
+                for (let i = 0; i < firstDay; i++) {
+                    html += '<td></td>';
+                }
+                
+                // Days of the month
+                for (let i = 0; i < daysInMonth; i++) {
+                    if (day <= daysInMonth) {
+                        if (i % 7 === 0) {
+                            html += '</tr><tr>';
                         }
+                        html += '<td class="calendar-day" data-day="' + day + '">' + day + '</td>';
+                        day++;
                     }
-                    calendarBody.appendChild(row);
+                }
+                
+                // Blank spaces after the last day
+                for (let i = lastDay; i < 6; i++) {
+                    html += '<td></td>';
+                }
+                
+                const tbody = document.createElement('tbody');
+                tbody.innerHTML = '<tr>' + html + '</tr>';
+                calendarBody.innerHTML = '';
+                calendarBody.appendChild(tbody);
+                monthYear.innerHTML = monthNames[month] + ' ' + year;
+                
+                // Add event listener to each day
+                const calendarDays = document.querySelectorAll('.calendar-day');
+                calendarDays.forEach(day => {
+                    day.addEventListener('click', function() {
+                        const selectedDay = this.dataset.day;
+                        const currentDate = new Date();
+                        const selectedDateObj = new Date(year, month, selectedDay);
+                        
+                        if (selectedDateObj >= currentDate) {
+                            calendarDays.forEach(day => day.classList.remove('selected'));
+                            this.classList.add('selected');
+                            selectedDate = selectedDateObj.toLocaleDateString('en-US');
+                            selectedDateInput.value = selectedDate;
+                            updateSubmitButton();
+                        } else {
+                            alert('Please select a future date.');
+                        }
+                    });
+                });
+            }
+
+            // Function to update the state of the submit button
+            function updateSubmitButton() {
+                if (selectedDate && selectedTime) {
+                    bookAppointmentBtn.disabled = false;
+                } else {
+                    bookAppointmentBtn.disabled = true;
                 }
             }
 
-            generateCalendar(currentMonth, currentYear);
+            // Event listeners for time slots
+            timeSlots.forEach(slot => {
+                slot.addEventListener('click', function() {
+                    const currentTime = new Date();
+                    const selectedTimeObj = new Date(currentTime.toDateString() + ' ' + this.dataset.time);
+                    
+                    if (selectedDate && selectedTimeObj >= currentTime) {
+                        timeSlots.forEach(slot => slot.classList.remove('selected'));
+                        this.classList.add('selected');
+                        selectedTime = this.dataset.time;
+                        selectedTimeInput.value = selectedTime;
+                        updateSubmitButton();
+                    } else {
+                        alert('Please select a valid time slot.');
+                    }
+                });
+            });
 
+            // Initial render of the calendar
+            const currentDate = new Date();
+            renderCalendar(currentDate.getMonth(), currentDate.getFullYear());
+
+            // Event listeners for navigation buttons
             document.getElementById('prevMonth').addEventListener('click', function() {
-                currentMonth = (currentMonth === 0) ? 11 : currentMonth - 1;
-                currentYear = (currentMonth === 11) ? currentYear - 1 : currentYear;
-                generateCalendar(currentMonth, currentYear);
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar(currentDate.getMonth(), currentDate.getFullYear());
             });
 
             document.getElementById('nextMonth').addEventListener('click', function() {
-                currentMonth = (currentMonth === 11) ? 0 : currentMonth + 1;
-                currentYear = (currentMonth === 0) ? currentYear + 1 : currentYear;
-                generateCalendar(currentMonth, currentYear);
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar(currentDate.getMonth(), currentDate.getFullYear());
             });
 
-            timeSlots.forEach(slot => {
-                slot.addEventListener('click', function() {
-                    timeSlots.forEach(slot => slot.classList.remove('selected'));
-                    this.classList.add('selected');
-                    document.getElementById('selected-time').value = this.getAttribute('data-time');
-                    document.getElementById('appointment-form').querySelector('input[type="submit"]').disabled = false;
-                });
+            // Event listener for form submission
+            appointmentForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                if (selectedDate && selectedTime) {
+                    this.submit();
+                } else {
+                    alert('Please select both a date and a time slot.');
+                }
             });
         });
     </script>
